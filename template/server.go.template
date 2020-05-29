@@ -1,0 +1,28 @@
+package PKGNAME
+
+import (
+	"context"
+	"net/http"
+
+    "github.com/twitchtv/twirp/hooks/statsd"
+	PKGNAMErpc "SVCPATH/rpc/PKGNAME"
+)
+
+// Server implements the PKGNAME RPC interface.
+type Server struct {
+	stats statsd.Statter
+	// TODO - add dependencies here
+}
+
+func NewServer( s statsd.Statter ) http.Handler {
+	server := &Server{
+	    stats: s,
+	}
+	hooks := statsd.NewStatsdServerHooks(s)
+	twirpHandler := PKGNAMErpc.NewPKGNAMEServer(server, hooks)
+	return twirpHandler
+}
+
+func (s *Server) HealthCheck(ctx context.Context, req *PKGNAMErpc.HealthCheckReq) (*PKGNAMErpc.HealthCheckResp, error) {
+	return &PKGNAMErpc.HealthCheckResp{}, nil
+}

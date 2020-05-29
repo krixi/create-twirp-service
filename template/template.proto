@@ -1,0 +1,12 @@
+syntax = "proto3";
+package io.SVCNAME; // TODO: Update this before deploying to prod.
+option go_package = "PKGNAMErpc";
+
+service PKGNAMEService {
+    rpc HealthCheck(HealthCheckReq) returns (HealthCheckResp);
+}
+
+message HealthCheckReq {}
+
+message HealthCheckResp {}
+

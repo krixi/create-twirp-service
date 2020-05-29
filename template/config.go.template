@@ -1,0 +1,22 @@
+package PKGNAME
+
+import (
+	"github.com/segmentio/conf"
+)
+
+// Config holds the program's configuration variables
+type Config struct {
+	Bind   string `conf:"bind"`
+	Region string `conf:"region"`
+}
+
+func NewConfig() Config {
+	config := Config{
+		Bind:   ":19XXX",
+		Region: "us-west-2",
+	}
+
+	conf.Load(&config)
+
+	return config
+}

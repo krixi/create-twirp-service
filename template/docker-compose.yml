@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+
+    SVCNAME:
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "19XXX:19XXX"
+        volumes:
+            - ~/.aws:/root/.aws
+        environment:
+            - AWS_PROFILE=
+
+    # TODO: you can put dependencies here to facilitate local testing

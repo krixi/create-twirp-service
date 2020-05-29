@@ -1,0 +1,60 @@
+package main
+
+import (
+	"context"
+	"net/http"
+	"os"
+
+	"github.com/segmentio/events"
+	_ "github.com/segmentio/events/ecslogs"
+	_ "github.com/segmentio/events/text"
+	"SVCPATH/internal/PKGNAME"
+)
+
+type appBackend struct {
+	config  PKGNAME.Config
+	handler http.Handler
+}
+
+func main() {
+
+	events.Log("initializing SVCNAME")
+	app, err := bootstrap()
+	if err != nil {
+        events.Log("error initializing SVCNAME: %v", err)
+		panic(err)
+	}
+
+	ctx, cancel := events.WithSignals(context.Background(), os.Interrupt, os.Kill)
+	defer cancel()
+
+	go func() {
+		events.Log("Listening on port %{port}s", app.config.Bind)
+		if err := http.ListenAndServe(app.config.Bind, app.handler); err != nil {
+			events.Log("Error listening: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	events.Log("SVCNAME shutting down")
+}
+
+func bootstrap() (appBackend, error) {
+
+	config := PKGNAME.NewConfig()
+	sqsclient, err := awsclients.NewSQSClient(config.Region, config.QueueName)
+	if err != nil {
+		return appBackend{}, err
+	}
+	statter, err := twirpext.NewStatsDClient("SVCNAME")
+	if err != nil {
+		return appBackend{}, err
+	}
+	handler := PKGNAME.NewServer(sqsclient, statter)
+
+	return appBackend{
+		config,
+		handler,
+	}, nil
+}
